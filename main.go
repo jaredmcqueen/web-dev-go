@@ -17,6 +17,13 @@ func homeHandler(w http.ResponseWriter, _ *http.Request) {
 	fmt.Fprint(w, "<h3>this is a webpage</h3>")
 }
 
+func getArticle(w http.ResponseWriter, r *http.Request) {
+	dateParam := chi.URLParam(r, "date")
+	slugParam := chi.URLParam(r, "slug")
+
+	fmt.Fprintf(w, "date was %v, slug was %v", dateParam, slugParam)
+}
+
 func main() {
 	r := chi.NewRouter()
 	r.Get("/contact", contanctHandler)
@@ -24,6 +31,7 @@ func main() {
 	r.NotFound(func(w http.ResponseWriter, _ *http.Request) {
 		http.Error(w, "page not found", http.StatusNotFound)
 	})
+	r.Get("/articles/{date}-{slug}", getArticle)
 	fmt.Println("starting the server on :3000...")
 	http.ListenAndServe(":3000", r)
 }
