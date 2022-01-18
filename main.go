@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func contanctHandler(w http.ResponseWriter, _ *http.Request) {
@@ -10,19 +12,18 @@ func contanctHandler(w http.ResponseWriter, _ *http.Request) {
 	fmt.Fprint(w, "email me at <a href=\"mailto:test@gmail.com\">test@gmail.com</a>.")
 }
 
-func handlerFunc(w http.ResponseWriter, _ *http.Request) {
-	http.Error(w, "page not found", http.StatusNotFound)
-}
-
-type CustomRouter struct{}
-
-func (router CustomRouter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	http.Error(w, "page not found", http.StatusNotFound)
+func homeHandler(w http.ResponseWriter, _ *http.Request) {
+	w.Header().Set("Content-Type", "text/html")
+	fmt.Fprint(w, "<h3>this is a webpage</h3>")
 }
 
 func main() {
-	var my_router CustomRouter
+	r := chi.NewRouter()
+	r.Get("/contact", contanctHandler)
+	r.Get("/", homeHandler)
+	r.NotFound(func(w http.ResponseWriter, _ *http.Request) {
+		http.Error(w, "page not found", http.StatusNotFound)
+	})
 	fmt.Println("starting the server on :3000...")
-	http.HandleFunc("/", handlerFunc)
-	http.ListenAndServe(":3000", my_router)
+	http.ListenAndServe(":3000", r)
 }
